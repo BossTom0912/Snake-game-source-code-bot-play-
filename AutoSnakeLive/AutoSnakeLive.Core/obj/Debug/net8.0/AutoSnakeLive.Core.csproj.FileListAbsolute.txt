@@ -1,0 +1,17 @@
+D:\tiktok\src game\AutoSnakeLive\AutoSnakeLive.Core\obj\Debug\net8.0\AutoSnakeLive.Core.csproj.AssemblyReference.cache
+D:\tiktok\src game\AutoSnakeLive\AutoSnakeLive.Core\obj\Debug\net8.0\AutoSnakeLive.Core.GeneratedMSBuildEditorConfig.editorconfig
+D:\tiktok\src game\AutoSnakeLive\AutoSnakeLive.Core\obj\Debug\net8.0\AutoSnakeLive.Core.AssemblyInfoInputs.cache
+D:\tiktok\src game\AutoSnakeLive\AutoSnakeLive.Core\obj\Debug\net8.0\AutoSnakeLive.Core.AssemblyInfo.cs
+D:\tiktok\src game\AutoSnakeLive\AutoSnakeLive.Core\obj\Debug\net8.0\AutoSnakeLive.Core.csproj.CoreCompileInputs.cache
+D:\tiktok\src game\AutoSnakeLive\AutoSnakeLive.Core\bin\Debug\net8.0\AutoSnakeLive.Core.deps.json
+D:\tiktok\src game\AutoSnakeLive\AutoSnakeLive.Core\bin\Debug\net8.0\AutoSnakeLive.Core.dll
+D:\tiktok\src game\AutoSnakeLive\AutoSnakeLive.Core\bin\Debug\net8.0\AutoSnakeLive.Core.pdb
+D:\tiktok\src game\AutoSnakeLive\AutoSnakeLive.Core\bin\Debug\net8.0\AutoSnakeLive.Models.dll
+D:\tiktok\src game\AutoSnakeLive\AutoSnakeLive.Core\bin\Debug\net8.0\AutoSnakeLive.Shared.dll
+D:\tiktok\src game\AutoSnakeLive\AutoSnakeLive.Core\bin\Debug\net8.0\AutoSnakeLive.Models.pdb
+D:\tiktok\src game\AutoSnakeLive\AutoSnakeLive.Core\bin\Debug\net8.0\AutoSnakeLive.Shared.pdb
+D:\tiktok\src game\AutoSnakeLive\AutoSnakeLive.Core\obj\Debug\net8.0\AutoSnak.85527E71.Up2Date
+D:\tiktok\src game\AutoSnakeLive\AutoSnakeLive.Core\obj\Debug\net8.0\AutoSnakeLive.Core.dll
+D:\tiktok\src game\AutoSnakeLive\AutoSnakeLive.Core\obj\Debug\net8.0\refint\AutoSnakeLive.Core.dll
+D:\tiktok\src game\AutoSnakeLive\AutoSnakeLive.Core\obj\Debug\net8.0\AutoSnakeLive.Core.pdb
+D:\tiktok\src game\AutoSnakeLive\AutoSnakeLive.Core\obj\Debug\net8.0\ref\AutoSnakeLive.Core.dll

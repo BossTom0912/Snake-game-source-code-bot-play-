@@ -1,0 +1,56 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "AutoSnakeLive.Core/1.0.0": {
+        "dependencies": {
+          "AutoSnakeLive.Models": "1.0.0",
+          "AutoSnakeLive.Shared": "1.0.0"
+        },
+        "runtime": {
+          "AutoSnakeLive.Core.dll": {}
+        }
+      },
+      "AutoSnakeLive.Models/1.0.0": {
+        "dependencies": {
+          "AutoSnakeLive.Shared": "1.0.0"
+        },
+        "runtime": {
+          "AutoSnakeLive.Models.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "AutoSnakeLive.Shared/1.0.0": {
+        "runtime": {
+          "AutoSnakeLive.Shared.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "AutoSnakeLive.Core/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "AutoSnakeLive.Models/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "AutoSnakeLive.Shared/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

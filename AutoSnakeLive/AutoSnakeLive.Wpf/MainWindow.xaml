@@ -1,0 +1,45 @@
+<Window x:Class="AutoSnakeLive.Wpf.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Auto Snake Live" Height="900" Width="506" Background="Black">
+    <Grid>
+        <!-- Viewbox ensures the game canvas scales with the window whilst maintaining aspect ratio -->
+        <Viewbox Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Border BorderBrush="{StaticResource GameMapBorderBrush}"
+                    BorderThickness="2"
+                    Background="{StaticResource GameMapBackgroundBrush}">
+                <Canvas x:Name="GameCanvas"
+                        Width="450"
+                        Height="800"
+                        Background="{StaticResource GameMapBackgroundBrush}" />
+            </Border>
+        </Viewbox>
+        <!-- Overlay for score and round information -->
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10" >
+            <TextBlock x:Name="RoundText" Foreground="{StaticResource GameHudBrush}" FontSize="20" Margin="0,0,15,0" />
+            <TextBlock x:Name="ScoreText" Foreground="{StaticResource GameHudBrush}" FontSize="20" />
+        </StackPanel>
+        <Grid HorizontalAlignment="Center"
+              VerticalAlignment="Bottom"
+              Margin="0,0,0,10"
+              IsHitTestVisible="False"
+              Opacity="0.72">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Button x:Name="KeyW" Grid.Row="0" Grid.Column="1" Style="{StaticResource DirectionButtonStyle}" />
+            <Button x:Name="KeyA" Grid.Row="1" Grid.Column="0" Style="{StaticResource DirectionButtonStyle}" />
+            <Button x:Name="KeyS" Grid.Row="1" Grid.Column="1" Style="{StaticResource DirectionButtonStyle}" />
+            <Button x:Name="KeyD" Grid.Row="1" Grid.Column="2" Style="{StaticResource DirectionButtonStyle}" />
+        </Grid>
+    </Grid>
+</Window>
