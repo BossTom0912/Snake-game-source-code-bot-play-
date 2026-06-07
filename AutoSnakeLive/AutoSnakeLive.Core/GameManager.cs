@@ -25,6 +25,8 @@ public class GameManager
 
     public bool GameOver { get; private set; }
 
+    public bool HasWon { get; private set; }
+
     public event Action? AppleEaten;
 
     /// <summary>
@@ -60,6 +62,8 @@ public class GameManager
         State = state;
         _foodRefillDueAt = null;
         _foodRefillTarget = 0;
+        GameOver = false;
+        HasWon = false;
         _difficultyManager = new DifficultyManager(_config);
     }
 
@@ -88,6 +92,7 @@ public class GameManager
         var safeDirection = GetSafeDirection(State, requestedDirection);
         if (safeDirection is null)
         {
+            GameOver = true;
             return _difficultyManager.GetMoveDelayForScore(Score);
         }
 
@@ -104,7 +109,15 @@ public class GameManager
         {
             State.RemoveFoodAt(prospectiveHead.Row, prospectiveHead.Col);
             AppleEaten?.Invoke();
-            HandleFoodCountAfterEating();
+            if (Score >= _config.WinningScore)
+            {
+                HasWon = true;
+                GameOver = true;
+            }
+            else
+            {
+                HandleFoodCountAfterEating();
+            }
         }
         // Refresh map after move and food spawn
         State.RefreshMap();
@@ -187,21 +200,35 @@ public class GameManager
         return _random.Next(minCount, maxCount + 1);
     }
 
-    private static Direction GetFallbackDirection(GameState state)
+    private Direction GetFallbackDirection(GameState state)
     {
         return GetSafeDirection(state, state.Snake.CurrentDirection) ?? state.Snake.CurrentDirection;
     }
 
-    private static Direction? GetSafeDirection(GameState state, Direction preferredDirection)
+    private Direction? GetSafeDirection(GameState state, Direction preferredDirection)
     {
-        if (IsSafeMove(state, preferredDirection))
+        if (IsCautiousMove(state, preferredDirection))
         {
             return preferredDirection;
         }
 
         foreach (var direction in Enum.GetValues<Direction>())
         {
-            if (IsSafeMove(state, direction))
+            if (IsCautiousMove(state, direction))
+            {
+                return direction;
+            }
+        }
+
+        // Breaking the tail buffer is preferable to an immediate collision.
+        if (SnakeMovementRules.IsCollisionFree(state, preferredDirection))
+        {
+            return preferredDirection;
+        }
+
+        foreach (var direction in Enum.GetValues<Direction>())
+        {
+            if (SnakeMovementRules.IsCollisionFree(state, direction))
             {
                 return direction;
             }
@@ -210,27 +237,11 @@ public class GameManager
         return null;
     }
 
-    private static bool IsSafeMove(GameState state, Direction direction)
+    private bool IsCautiousMove(GameState state, Direction direction)
     {
-        var snake = state.Snake;
-        var (dRow, dCol) = direction.ToOffset();
-        var next = (Row: snake.Head.Row + dRow, Col: snake.Head.Col + dCol);
-        if (!state.Map.IsInside(next.Row, next.Col))
-        {
-            return false;
-        }
-
-        if (state.Map[next.Row, next.Col].Type == CellType.Obstacle)
-        {
-            return false;
-        }
-
-        var willEat = state.IsFoodAt(next.Row, next.Col);
-        if (snake.Contains(next.Row, next.Col) && (willEat || next != snake.Tail))
-        {
-            return false;
-        }
-
-        return true;
+        return SnakeMovementRules.PreservesTailGap(
+            state,
+            direction,
+            _config.TailSafetyGapCells);
     }
 }

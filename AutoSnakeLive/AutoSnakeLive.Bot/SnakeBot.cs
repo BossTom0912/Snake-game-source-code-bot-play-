@@ -33,7 +33,7 @@ public class SnakeBot
         foreach (var food in state.Foods.OrderBy(food => Math.Abs(food.Row - head.Row) + Math.Abs(food.Col - head.Col)))
         {
             var path = _pathFinder.FindPath(state, head, (food.Row, food.Col));
-            if (path != null && path.Count > 0)
+            if (path != null && path.Count > 0 && _safetyChecker.KeepsTailGap(state, path[0]))
             {
                 // Ensure the path is safe
                 var safe = _safetyChecker.IsPathSafe(state, path, _pathFinder);
@@ -45,16 +45,24 @@ public class SnakeBot
         }
         // Either no path to food or unsafe path; fallback to survival path following tail
         var survivalPath = _safetyChecker.GetSurvivalPath(state, _pathFinder);
-        if (survivalPath != null && survivalPath.Count > 0)
+        if (survivalPath != null &&
+            survivalPath.Count > 0 &&
+            _safetyChecker.KeepsTailGap(state, survivalPath[0]))
         {
             return survivalPath[0];
         }
-        // As a last resort, pick any available direction that does not immediately hit an obstacle
+        // Prefer a cautious free move before relaxing the tail gap in an emergency.
         foreach (var dir in Enum.GetValues<Direction>())
         {
-            var (dRow, dCol) = dir.ToOffset();
-            var next = (Row: head.Row + dRow, Col: head.Col + dCol);
-            if (state.Map.IsInside(next.Row, next.Col) && state.Map[next.Row, next.Col].Type != CellType.Obstacle && !state.Snake.Contains(next.Row, next.Col))
+            if (_safetyChecker.KeepsTailGap(state, dir))
+            {
+                return dir;
+            }
+        }
+
+        foreach (var dir in Enum.GetValues<Direction>())
+        {
+            if (SnakeMovementRules.IsCollisionFree(state, dir))
             {
                 return dir;
             }

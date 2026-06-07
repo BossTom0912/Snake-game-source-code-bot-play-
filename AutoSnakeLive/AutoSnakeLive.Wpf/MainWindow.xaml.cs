@@ -130,7 +130,11 @@ public partial class MainWindow : Window
             Render(GetMovementProgress(elapsed));
             UpdateDirectionButtons();
             RoundText.Text = $"Round {_gameManager.CurrentRound}";
-            ScoreText.Text = _gameManager.GameOver ? $"Game Over! Score: {_score}" : $"Score: {_score}";
+            ScoreText.Text = _gameManager.HasWon
+                ? $"You Win! Score: {_score}"
+                : _gameManager.GameOver
+                    ? $"Game Over! Score: {_score}"
+                    : $"Score: {_score} / {_config.WinningScore}";
             _lastRenderedAt = elapsed;
         }
         finally

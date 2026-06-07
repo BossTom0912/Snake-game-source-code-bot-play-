@@ -20,6 +20,11 @@ public class SafetyChecker
     /// <returns>True if safe; otherwise false.</returns>
     public bool IsPathSafe(GameState state, List<Direction> pathToFood, PathFinder pathFinder)
     {
+        if (pathToFood.Count == 0 || !KeepsTailGap(state, pathToFood[0]))
+        {
+            return false;
+        }
+
         // Simulate snake movement along the path
         var cloneSnake = state.Snake.Clone();
         var foodIndex = pathToFood.Count - 1;
@@ -36,7 +41,7 @@ public class SafetyChecker
         var head = cloneSnake.Head;
         var tail = cloneSnake.Tail;
         var safePath = pathFinder.FindPath(tempState, head, tail);
-        return safePath != null && safePath.Count > 0;
+        return safePath != null && safePath.Count > 1;
     }
 
     /// <summary>
@@ -49,5 +54,10 @@ public class SafetyChecker
         var head = snake.Head;
         var tail = snake.Tail;
         return pathFinder.FindPath(state, head, tail);
+    }
+
+    public bool KeepsTailGap(GameState state, Direction direction, int gapCells = 1)
+    {
+        return SnakeMovementRules.PreservesTailGap(state, direction, gapCells);
     }
 }

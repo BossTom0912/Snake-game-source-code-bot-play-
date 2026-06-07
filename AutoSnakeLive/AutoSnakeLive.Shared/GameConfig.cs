@@ -41,6 +41,16 @@ public class GameConfig
     public int MaxFoodCount { get; init; } = 15;
 
     /// <summary>
+    /// Number of apples required to win the current game.
+    /// </summary>
+    public int WinningScore { get; init; } = 500;
+
+    /// <summary>
+    /// Empty grid cells the bot should keep between its head and predicted tail position.
+    /// </summary>
+    public int TailSafetyGapCells { get; init; } = 1;
+
+    /// <summary>
     /// Starts the delayed food refill when this many apples or fewer remain.
     /// </summary>
     public int FoodRefillThreshold { get; init; } = 2;
