@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Media;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -64,6 +65,15 @@ public partial class MainWindow : Window
     private void OnClosed(object? sender, EventArgs e)
     {
         CompositionTarget.Rendering -= OnRendering;
+        if (_gameManager is not null)
+        {
+            _gameManager.AppleEaten -= OnAppleEaten;
+        }
+    }
+
+    private static void OnAppleEaten()
+    {
+        SystemSounds.Asterisk.Play();
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e)
@@ -85,6 +95,7 @@ public partial class MainWindow : Window
             _activeDirection = nextDirection;
             return _activeDirection;
         });
+        _gameManager.AppleEaten += OnAppleEaten;
         _score = 0;
         _currentSnakeSegments = _gameManager.State.Snake.Segments.ToList();
         _previousSnakeSegments = _currentSnakeSegments.ToList();
