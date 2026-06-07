@@ -15,12 +15,17 @@ public class GameManager
     private readonly GameConfig _config;
     private readonly MapGenerator _mapGenerator;
     private readonly RoundManager _roundManager;
+    private readonly Random _random = new();
     private DifficultyManager _difficultyManager;
     private readonly Func<GameState, Direction> _getNextDirection;
+    private DateTime? _foodRefillDueAt;
+    private int _foodRefillTarget;
 
     public GameState State { get; private set; } = null!;
 
     public bool GameOver { get; private set; }
+
+    public event Action? AppleEaten;
 
     /// <summary>
     /// Gets the current round number from the round manager.
@@ -46,16 +51,15 @@ public class GameManager
     /// </summary>
     private void InitialiseRound()
     {
-        var map = _mapGenerator.GenerateMap(_config.LevelObstacleCounts[1]);
+        var map = _mapGenerator.GenerateMap(0);
         // Spawn snake at centre
         var snake = new Snake(_config.Height / 2, _config.Width / 2);
         var state = new GameState(map, snake);
-        // Place obstacles for level 1 (others added at runtime)
-        var obstacles = new List<Obstacle>();
-        state.PlaceObstacles(obstacles);
         state.RefreshMap();
-        state.EnsureFoodCount(_config.MinFoodCount, _config.MaxFoodCount);
+        state.FillFoodToCount(GetRandomFoodTarget());
         State = state;
+        _foodRefillDueAt = null;
+        _foodRefillTarget = 0;
         _difficultyManager = new DifficultyManager(_config);
     }
 
@@ -75,38 +79,9 @@ public class GameManager
             _roundManager.NextRound();
             InitialiseRound();
         }
-        // Increase map difficulty by adding obstacles when level changes.
-        // Determine number of obstacles for current level and ensure they are on the map.
-        var level = _difficultyManager.CurrentLevel;
-        var desiredObstacleCount = _config.LevelObstacleCounts[level];
-        if (State.Obstacles.Count < desiredObstacleCount)
-        {
-            // Generate additional obstacles using MapGenerator and ensure they do not block the snake or food
-            var map = State.Map;
-            var random = new Random();
-            while (State.Obstacles.Count < desiredObstacleCount)
-            {
-                var r = random.Next(0, map.Height);
-                var c = random.Next(0, map.Width);
-                if (map[r, c].Type == CellType.Empty && !State.Snake.Contains(r, c) && !State.IsFoodAt(r, c))
-                {
-                    // Tentatively place obstacle
-                    var obstacle = new Obstacle(r, c);
-                    map[r, c].Type = CellType.Obstacle;
-                    // Validate connectivity; if fails revert
-                    if (_mapGenerator.ValidateMap(map))
-                    {
-                        State.Obstacles.Add(obstacle);
-                    }
-                    else
-                    {
-                        map[r, c].Type = CellType.Empty;
-                    }
-                }
-            }
-        }
-        // Refresh cell types for snake and food before computing the bot path
-        State.EnsureFoodCount(_config.MinFoodCount, _config.MaxFoodCount);
+        // Refresh cell types and process delayed apple refill before asking the bot.
+        State.RefreshMap();
+        ProcessFoodRefill();
         State.RefreshMap();
         // Ask bot for next direction
         var requestedDirection = _getNextDirection(State);
@@ -128,11 +103,88 @@ public class GameManager
         if (willEat)
         {
             State.RemoveFoodAt(prospectiveHead.Row, prospectiveHead.Col);
-            State.EnsureFoodCount(_config.MinFoodCount, _config.MaxFoodCount);
+            AppleEaten?.Invoke();
+            HandleFoodCountAfterEating();
         }
         // Refresh map after move and food spawn
         State.RefreshMap();
         return _difficultyManager.GetMoveDelayForScore(Score);
+    }
+
+    private void ProcessFoodRefill()
+    {
+        if (State.Foods.Count == 0)
+        {
+            RefillFoodImmediately();
+            return;
+        }
+
+        ScheduleFoodRefillIfNeeded(resetDelay: false);
+        if (_foodRefillDueAt is null || DateTime.UtcNow < _foodRefillDueAt.Value)
+        {
+            return;
+        }
+
+        State.FillFoodToCount(_foodRefillTarget);
+        _foodRefillDueAt = null;
+        _foodRefillTarget = 0;
+    }
+
+    private void HandleFoodCountAfterEating()
+    {
+        if (State.Foods.Count == 0)
+        {
+            RefillFoodImmediately();
+            return;
+        }
+
+        if (State.Foods.Count <= _config.FoodRefillThreshold)
+        {
+            ScheduleFoodRefillIfNeeded(resetDelay: true);
+        }
+        else
+        {
+            _foodRefillDueAt = null;
+            _foodRefillTarget = 0;
+        }
+    }
+
+    private void ScheduleFoodRefillIfNeeded(bool resetDelay)
+    {
+        if (State.Foods.Count == 0 || State.Foods.Count > _config.FoodRefillThreshold)
+        {
+            return;
+        }
+
+        if (_foodRefillDueAt is not null && !resetDelay)
+        {
+            return;
+        }
+
+        var minMilliseconds = (int)_config.MinimumFoodRefillDelay.TotalMilliseconds;
+        var maxMilliseconds = (int)_config.MaximumFoodRefillDelay.TotalMilliseconds;
+        if (maxMilliseconds < minMilliseconds)
+        {
+            (minMilliseconds, maxMilliseconds) = (maxMilliseconds, minMilliseconds);
+        }
+
+        var refillDelay = _random.Next(minMilliseconds, maxMilliseconds + 1);
+        _foodRefillDueAt = DateTime.UtcNow.AddMilliseconds(refillDelay);
+        _foodRefillTarget = GetRandomFoodTarget();
+    }
+
+    private void RefillFoodImmediately()
+    {
+        State.FillFoodToCount(GetRandomFoodTarget());
+        _foodRefillDueAt = null;
+        _foodRefillTarget = 0;
+    }
+
+    private int GetRandomFoodTarget()
+    {
+        var minCount = Math.Min(_config.MinFoodCount, _config.MaxFoodCount);
+        var maxCount = Math.Max(_config.MinFoodCount, _config.MaxFoodCount);
+        return _random.Next(minCount, maxCount + 1);
     }
 
     private static Direction GetFallbackDirection(GameState state)

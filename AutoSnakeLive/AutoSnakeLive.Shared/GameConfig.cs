@@ -33,12 +33,21 @@ public class GameConfig
     /// <summary>
     /// Minimum number of apples visible on the map.
     /// </summary>
-    public int MinFoodCount { get; init; } = 3;
+    public int MinFoodCount { get; init; } = 10;
 
     /// <summary>
     /// Maximum number of apples visible on the map.
     /// </summary>
-    public int MaxFoodCount { get; init; } = 5;
+    public int MaxFoodCount { get; init; } = 15;
+
+    /// <summary>
+    /// Starts the delayed food refill when this many apples or fewer remain.
+    /// </summary>
+    public int FoodRefillThreshold { get; init; } = 2;
+
+    public TimeSpan MinimumFoodRefillDelay { get; init; } = TimeSpan.FromSeconds(4);
+
+    public TimeSpan MaximumFoodRefillDelay { get; init; } = TimeSpan.FromSeconds(4);
 
     /// <summary>
     /// Mapping from difficulty level to tick delay in milliseconds.  
@@ -58,12 +67,12 @@ public class GameConfig
     /// Score milestones that increase the snake movement speed.
     /// After the last configured milestone, speed continues increasing every SpeedMilestoneStep points.
     /// </summary>
-    public List<int> SpeedMilestones { get; init; } = new() { 10, 20, 40, 60 };
+    public List<int> SpeedMilestones { get; init; } = new() { 10 };
 
     /// <summary>
     /// Extra score interval after the configured milestones have been reached.
     /// </summary>
-    public int SpeedMilestoneStep { get; init; } = 20;
+    public int SpeedMilestoneStep { get; init; } = 10;
 
     /// <summary>
     /// Initial delay between grid moves before any speed milestone is reached.
@@ -71,14 +80,9 @@ public class GameConfig
     public int InitialMoveDelayMs { get; init; } = 300;
 
     /// <summary>
-    /// Delay removed at each speed milestone.
-    /// </summary>
-    public int MoveDelayDecreasePerMilestoneMs { get; init; } = 25;
-
-    /// <summary>
     /// Fastest allowed grid move delay. This keeps smooth rendering and UI input responsive.
     /// </summary>
-    public int MinimumMoveDelayMs { get; init; } = 70;
+    public int MinimumMoveDelayMs { get; init; } = 30;
 
     /// <summary>
     /// Mapping from difficulty level to the number of obstacles to generate.  
@@ -86,12 +90,12 @@ public class GameConfig
     /// </summary>
     public Dictionary<int, int> LevelObstacleCounts { get; init; } = new()
     {
-        [1] = 20,
-        [2] = 30,
-        [3] = 40,
-        [4] = 50,
-        [5] = 60,
-        [6] = 70
+        [1] = 0,
+        [2] = 0,
+        [3] = 0,
+        [4] = 0,
+        [5] = 0,
+        [6] = 0
     };
 
     /// <summary>
@@ -109,8 +113,16 @@ public class GameConfig
 
     public int GetMoveDelayForScore(int score)
     {
-        var milestoneCount = GetReachedSpeedMilestoneCount(score);
-        var delay = InitialMoveDelayMs - milestoneCount * MoveDelayDecreasePerMilestoneMs;
+        var delay = score switch
+        {
+            < 10 => 300,
+            < 20 => 225,
+            < 30 => 150,
+            < 40 => 100,
+            < 50 => 50,
+            _ => 30
+        };
+
         return Math.Max(MinimumMoveDelayMs, delay);
     }
 

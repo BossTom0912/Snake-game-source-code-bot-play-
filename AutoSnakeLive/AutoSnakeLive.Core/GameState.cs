@@ -38,17 +38,17 @@ public class GameState
     public void EnsureFoodCount(int minCount, int maxCount)
     {
         maxCount = Math.Max(minCount, maxCount);
-        while (Foods.Count > maxCount)
-        {
-            Foods.RemoveAt(Foods.Count - 1);
-        }
-
         if (Foods.Count >= minCount)
         {
             return;
         }
 
         var targetCount = _random.Next(minCount, maxCount + 1);
+        FillFoodToCount(targetCount);
+    }
+
+    public void FillFoodToCount(int targetCount)
+    {
         while (Foods.Count < targetCount && TrySpawnFood())
         {
         }
